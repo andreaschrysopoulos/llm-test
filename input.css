@@ -1,0 +1,62 @@
+@import "tailwindcss";
+
+* {
+  @apply leading-relaxed;
+}
+
+/* Headers */
+h1 {
+  @apply text-6xl py-2 font-semibold;
+  strong {
+    @apply font-semibold;
+  }
+}
+h2 {
+  @apply text-4xl py-2 font-semibold;
+  strong {
+    @apply font-semibold;
+  }
+}
+h3 {
+  @apply text-2xl py-2 font-semibold;
+  strong {
+    @apply font-semibold;
+  }
+}
+h4 {
+  @apply text-xl py-2 font-semibold;
+  strong {
+    @apply font-semibold;
+  }
+}
+
+p {
+  @apply pb-3;
+}
+
+/* Strong */
+strong {
+  @apply font-bold;
+}
+
+
+/* Lists */
+
+ul {
+  @apply list-disc pl-6;
+  li {
+    @apply pb-3;
+  }}
+
+ol {
+  @apply list-decimal pl-6;
+  li {
+    @apply pb-3;
+  }
+}
+
+/* Horizontal line */
+hr {
+  @apply mb-8 mt-5 border-[0.05px];
+}
+
