@@ -36,6 +36,7 @@ router.post('/assistantResponse', async (req, res) => {
         res.write(content);
       }
     }
+    process.stdout.write("\n\n");
     localMessages.push(entry);
     res.end();
 

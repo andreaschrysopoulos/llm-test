@@ -6,6 +6,11 @@ const messageArea = document.getElementById('messageArea');
 const clearChat = document.getElementById('clearChat');
 const container = document.getElementById("scrollable");
 
+document.addEventListener('keydown', () => {
+  if (document.activeElement !== message)
+    message.focus();
+
+})
 
 form.addEventListener('submit', (e) => {
   e.preventDefault();
@@ -26,7 +31,7 @@ clearChat.addEventListener('click', async () => {
 
 function scrollToBottom() {
   const location = container.scrollHeight - container.scrollTop - container.clientHeight;
-  if (location > 1 && location < 45) {
+  if (location > 1 && location < 50) {
     container.scrollTop = container.scrollHeight;
   }
 }
