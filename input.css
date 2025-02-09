@@ -57,6 +57,6 @@ ol {
 
 /* Horizontal line */
 hr {
-  @apply mb-8 mt-5 border-[0.05px];
+  @apply mb-8 mt-5;
 }
 

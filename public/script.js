@@ -7,47 +7,48 @@ const clearChat = document.getElementById('clearChat');
 const container = document.getElementById("scrollable");
 
 document.addEventListener('keydown', () => {
-  if (document.activeElement !== message)
-    message.focus();
-
-})
+  if (document.activeElement !== message) message.focus();
+});
 
 form.addEventListener('submit', (e) => {
   e.preventDefault();
-})
-
-clearChat.addEventListener('click', async () => {
-  fetch('/chat/clear', {
-    method: "POST"
-  })
-    .then(response => response.text())
-    .then(() => location.reload());
-
 });
 
-// container.addEventListener('scroll', () => {
-//   console.log(container.scrollHeight - container.scrollTop - container.clientHeight);
-// })
+clearChat.addEventListener('click', () => {
+  fetch('/chat/clear', { method: "DELETE" }).then(location.reload());
+});
 
 function scrollToBottom() {
   const location = container.scrollHeight - container.scrollTop - container.clientHeight;
-  if (location > 1 && location < 50) {
-    container.scrollTop = container.scrollHeight;
-  }
-}
+  if (location > 1 && location < 50) container.scrollTop = container.scrollHeight;
+};
 
+function appendUserMessage(message) {
+  const userMessage = document.createElement('div');
+  userMessage.classList.add('flex', 'justify-end', 'py-5');
+  const userSpan = document.createElement('span');
+  userSpan.classList.add('px-5', 'py-2.5', 'rounded-3xl', 'bg-stone-100', 'dark:bg-stone-800', 'dark:text-white', 'max-w-[70%]');
+  userSpan.innerHTML = message;
+  userMessage.appendChild(userSpan);
+  messageArea.appendChild(userMessage);
+};
+
+function appendAssistantMessage(message) {
+  const assistantMessage = document.createElement('div');
+  assistantMessage.classList.add('flex', 'justify-start', 'py-5', "dark:text-white");
+  const assistantSpan = document.createElement('span');
+  assistantSpan.innerHTML = message;
+  assistantMessage.appendChild(assistantSpan);
+  messageArea.appendChild(assistantMessage);
+};
+
+// @desc: Send message to the backend and receive the assistant's response.
 btn.addEventListener('click', async () => {
   // Only proceed if there is something to send
   if (message.value.trim()) {
 
-    // Create the user message element and append it as you already do
-    const userMessage = document.createElement('div');
-    userMessage.classList.add('flex', 'justify-end', 'py-5');
-    const userSpan = document.createElement('span');
-    userSpan.classList.add('px-5', 'py-2.5', 'rounded-3xl', 'bg-stone-100', 'dark:bg-stone-800', 'dark:text-white', 'max-w-[70%]');
-    userSpan.textContent = message.value.trim();
-    userMessage.appendChild(userSpan);
-    messageArea.appendChild(userMessage);
+    // Create the user message element and append it
+    appendUserMessage(message.value.trim());
 
     // Save and then clear the message text
     const send = message.value;
@@ -59,6 +60,8 @@ btn.addEventListener('click', async () => {
     const assistantSpan = document.createElement('span');
     assistantMessage.appendChild(assistantSpan);
     messageArea.appendChild(assistantMessage);
+
+    // Scroll to the bottom
     container.scrollTop = container.scrollHeight;
 
     // Update UI to indicate that the fetch is in progress
@@ -66,8 +69,8 @@ btn.addEventListener('click', async () => {
     btn.classList.replace('text-xl', 'text-3xl');
     btn.textContent = "◼︎";
 
-
     try {
+      // Send message to backend and await stream
       const response = await fetch('/chat/assistantResponse', {
         method: 'POST',
         headers: {
@@ -106,45 +109,30 @@ btn.addEventListener('click', async () => {
   }
 });
 
+// @desc: Display the chat history.
 function displayHistory(theJSON) {
-  // console.log(theJSON.length);
-  for (let index = theJSON.length - 1; index >= 0; index--) {
 
-    // create user message
-    if (theJSON[index].role === "user") {
-      const userMessage = document.createElement('div');
-      userMessage.classList.add('flex', 'justify-end', 'py-5');
-      const userSpan = document.createElement('span');
-      userSpan.classList.add('px-5', 'py-2.5', 'rounded-3xl', 'bg-stone-100', 'dark:bg-stone-800', 'dark:text-white', 'max-w-[70%]');
-      userSpan.textContent = theJSON[index].content;
-      userMessage.appendChild(userSpan);
-      messageArea.prepend(userMessage);
-    }
-    // Create assistant reply
-    else if (theJSON[index].role === "assistant") {
-      const assistantMessage = document.createElement('div');
-      assistantMessage.classList.add('flex', 'justify-start', 'py-5', "dark:text-white");
-      const assistantSpan = document.createElement('span');
-      // assistantSpan.classList.add('py-4');
-      assistantSpan.innerHTML = marked.parse(theJSON[index].content);
-      assistantMessage.appendChild(assistantSpan);
-      messageArea.prepend(assistantMessage);
-    } else {
-      console.log('Message role undefined');
-    }
+  // For every entry in the array, display user and assitant messages.
+  for (let i = 0; i < theJSON.length; i++) {
+    const role = theJSON[i].role;
+    const content = theJSON[i].content;
+
+    // For each 'role' entry, use appropriate function to display message
+    if (role === "user")
+      appendUserMessage(content);
+    else if (role === "assistant")
+      appendAssistantMessage(marked.parse(content));
+    else
+      console.log(`Message role: "${role}" is undefined`);
   }
+
+  // Scroll to the bottom
   container.scrollTop = container.scrollHeight;
 };
 
+// @desc: Get chat history & run displayHistory() function.
 window.addEventListener('DOMContentLoaded', () => {
-
-
   fetch('/chat/history', { method: "GET" })
     .then(response => response.json())
-    .then(response => {
-      // console.log(response)
-      displayHistory(response);
-    });
-
-
+    .then(json => displayHistory(json));
 })
