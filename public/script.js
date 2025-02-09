@@ -5,6 +5,8 @@ const form = document.getElementById('form');
 const messageArea = document.getElementById('messageArea');
 const clearChat = document.getElementById('clearChat');
 const container = document.getElementById("scrollable");
+let detachAutoScroll = false;
+const autoScrollSensitivity = 70;
 
 document.addEventListener('keydown', () => {
   if (document.activeElement !== message) message.focus();
@@ -18,9 +20,19 @@ clearChat.addEventListener('click', () => {
   fetch('/chat/clear', { method: "DELETE" }).then(location.reload());
 });
 
+// Detach autoscroll whenever the user scrolls up, so that the transition is smoother. (NOT FOR MOBILE: STILL NEED TO TEST THAT)
+container.addEventListener('wheel', (e) => {
+  if (e.deltaY < 0)
+    detachAutoScroll = true;
+  else if ((e.deltaY > 0) && (container.scrollHeight - container.scrollTop - container.clientHeight) < autoScrollSensitivity)
+    detachAutoScroll = false;
+});
+
 function scrollToBottom() {
+  if (detachAutoScroll)
+    return;
   const location = container.scrollHeight - container.scrollTop - container.clientHeight;
-  if (location > 1 && location < 50) container.scrollTop = container.scrollHeight;
+  if (location > 1 && location < autoScrollSensitivity) container.scrollTop = container.scrollHeight;
 };
 
 function appendUserMessage(message) {
